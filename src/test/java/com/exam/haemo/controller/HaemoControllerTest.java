@@ -25,7 +25,7 @@ class HaemoControllerTest {
     @Test
     public void test_책을_조회하면_null이_아닌_객체를_리턴한다() throws Exception {
         mockMvc.perform(get("/book/{id}", 1)
-                        .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON_UTF8))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andDo(document("book", // (3)
@@ -41,5 +41,23 @@ class HaemoControllerTest {
                 .andExpect(jsonPath("$.id", is(notNullValue()))) // (5)
                 .andExpect(jsonPath("$.title", is(notNullValue())))
                 .andExpect(jsonPath("$.author", is(notNullValue())));
+    }
+
+    @Test
+    public void test_memberAll() throws Exception {
+        mockMvc.perform(get("http://localhost:8080/memberTest")
+                        .accept(MediaType.APPLICATION_JSON_UTF8))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(document("member", // (3)
+                        responseFields(
+                                fieldWithPath("mber_no").description("회원번호"),
+                                fieldWithPath("id").description("아이디"),
+                                fieldWithPath("name").description("이름")
+                        )
+                ))
+                .andExpect(jsonPath("$.mber_no", is(notNullValue()))) // (5)
+                .andExpect(jsonPath("$.id", is(notNullValue())))
+                .andExpect(jsonPath("$.name", is(notNullValue())));
     }
 }
