@@ -1,4 +1,4 @@
-= RESTful Notes API Guide
+= REST API Guide
 :doctype: book
 :icons: font
 :source-highlighter: highlightjs
@@ -12,7 +12,6 @@
 == Book Api one
 api 에 관련된 설명을 이곳에 적습니다.
 
-/* include::{snippets}/book/curl-request.adoc[] */
 include::{snippets}/book/http-request.adoc[]
 include::{snippets}/book/path-parameters.adoc[]
 include::{snippets}/book/http-response.adoc[]

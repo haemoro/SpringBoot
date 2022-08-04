@@ -1,59 +1,52 @@
 package com.exam.haemo.controller;
 
-import org.junit.jupiter.api.BeforeEach;
+import com.exam.haemo.service.MemberService;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.restdocs.RestDocumentationContextProvider;
-import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@AutoConfigureMockMvc // -> webAppContextSetup(webApplicationContext)
+@AutoConfigureRestDocs // -> apply(documentationConfiguration(restDocumentation))
 @SpringBootTest
-@ExtendWith(RestDocumentationExtension.class)
 class TestJpaRestControllerTest {
 
-    private MockMvc mvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-    @BeforeEach
-    void setup(WebApplicationContext webApplicationContext, RestDocumentationContextProvider restDocumentation) {
-        this.mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
-                .apply(documentationConfiguration(restDocumentation)).build();
-    }
+    @MockBean
+    private MemberService memberService;
+
 
     @Test
-    public void test_memberAll() throws Exception {
-        mvc.perform(get("/memberTest")
-                        .accept(MediaType.APPLICATION_JSON_UTF8))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andDo(document("member", // (3)
-                        pathParameters(
+    void findById() throws Exception {
 
+        this.mockMvc.perform(get("/memberTest/{mbrNo}", "1") // 4
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(document("post-get-one",
+                        pathParameters( // 5
+                                parameterWithName("mbrNo").description("회원번호") // 6
                         ),
                         responseFields(
-                                fieldWithPath("mber_no").description("회원번호"),
-                                fieldWithPath("id").description("아이디"),
-                                fieldWithPath("name").description("이름")
+                                fieldWithPath("mbrNo").description("회원번호"),
+                                fieldWithPath("id").description("회원 아이디"),
+                                fieldWithPath("name").description("회원 이름")
                         )
-                ))
-                .andExpect(jsonPath("$.mber_no", is(notNullValue()))) // (5)
-                .andExpect(jsonPath("$.id", is(notNullValue())))
-                .andExpect(jsonPath("$.name", is(notNullValue())));
+                ));
     }
+
+
 }
